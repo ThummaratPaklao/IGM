@@ -7,7 +7,7 @@ This document covers instruction on how to run the integration of gene co-expres
 1. **Matlab** (version R2023a or better)
 2. **Cobra Toolbox** ([Installation Guide] https://opencobra.github.io/cobratoolbox/stable/installation.html )
 2. **Gurobi solver** (version 11.0.3 or better, free academic)
-3. **Genome scale metabolic model** ([Download from BiGG Models] http://bigg.ucsd.edu/)
+3. **Genome scale metabolic model** ([Download from BiGG Models] http://bigg.ucsd.edu/ and iML1515 can be downloaded from http://bigg.ucsd.edu/models/iML1515 )
 4. **Gene expression data file**
 5. **Uptake rates data file**
 
