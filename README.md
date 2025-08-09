@@ -4,14 +4,17 @@ A MILP-Based Approach for Multi-Condition Integration of Gene Expression into Ge
 This document covers instruction on how to run the integration of gene co-expression network and metabolic model method in MATLAB.
 
 ## REQUIREMENTS ##
-1. Matlab (version R2023a or better)
-2. Cobra Toolbox (Installation instruction: https://opencobra.github.io/cobratoolbox/stable/installation.html )
-2. Gurobi solver (version 11.0.3 or better, free academic)
-3. Genome scale metabolic model (Download: http://bigg.ucsd.edu/)
-4. Gene expression data file
-5. Uptake rates data file 
+1. **Matlab** (version R2023a or better)
+2. **Cobra Toolbox** ([Installation Guide] https://opencobra.github.io/cobratoolbox/stable/installation.html )
+2. **Gurobi solver** (version 11.0.3 or better, free academic)
+3. **Genome scale metabolic model** ([Download from BiGG Models] http://bigg.ucsd.edu/)
+4. **Gene expression data file**
+5. **Uptake rates data file**
 
-  Note that the first column of gene expression data should have gene symbols/names used in the genome scale metabolic model. The first column of Uptake rates data file should have reaction fluxes used in genome scale metabolic model. First row of gene expression data and Uptakes rates data file have same condition names.
+**Notes:**  
+- The first column of the gene expression file must contain **gene symbols/names** used in the genome-scale metabolic model.  
+- The first column of the uptake rates file must contain **reaction IDs** used in the model.  
+- The first row in both files must contain the **condition names**, and these names should match between files.  
 
 ## Usage ##
 Step 1. Open Matlab program and enter:
@@ -36,10 +39,8 @@ Step 4. Perform analysis
 
     >> [modelIGM solIGM] = IGMRUN(model, uptakeRatesTable, geneexpressionTable, condition, normalizemethod, method)
 
-IGMRUN - Multi-Condition Integration of Gene Expression into Genome-Scale Metabolic Models 
-          with Optional L1 or L2 Norm Regularization
-
- INPUTS:
+## Function Description ##
+ **INPUTS:**
     model:                 COBRA model structure (genome-scale metabolic model).
 
     uptakeRatesTable:      Table of uptake rates where each column represents a condition 
@@ -49,7 +50,7 @@ IGMRUN - Multi-Condition Integration of Gene Expression into Genome-Scale Metabo
     geneexpressionTable:   Table of gene expression profiles where each column represents a 
                            condition and each row corresponds to a gene in the metabolic model.
 
- OPTIONAL INPUTS:
+ **OPTIONAL INPUTS:**
     condition:             Row vector specifying the condition indices corresponding to 
                            the columns in geneexpressionTable.
                            Examples:
@@ -69,7 +70,7 @@ IGMRUN - Multi-Condition Integration of Gene Expression into Genome-Scale Metabo
                                'L1'  → IGM with L1 norm regularization
                                'L2'  → IGM with L2 norm regularization
 
- OUTPUTS:
+ **OUTPUTS:**
     modelIGM:              IGM optimization model incorporating relative gene expression data.
 
     solIGM:                Structure containing the optimization results:
@@ -87,7 +88,7 @@ IGMRUN - Multi-Condition Integration of Gene Expression into Genome-Scale Metabo
                                solIGM.xL2 → solution values for all variables in each condition using L2 norm
                                solIGM.fL2 → optimal objective value for each condition using L2 norm
 
- EXAMPLES:
+ **EXAMPLES:**
     Run with default settings (IGM without regularization):
     [modelIGM, solIGM] = IGMRUN(model, uptakeRatesTable, geneexpressionTable)
 
