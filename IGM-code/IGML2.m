@@ -1,46 +1,50 @@
 function [modelIGM solIGM] = IGML2(model, uptakeRatesTable, geneexpressionTable, condition, normalizemethod)
-% Algorithm for Multi-Condition Integration of Gene Expression into Genome-Scale Metabolic Models
+% IGML2 - Multi-Condition Integration of Gene Expression into Genome-Scale Metabolic Models 
+%         with L2-Norm Regularization
 %
 % USAGE:
-%
-%    [modelIGM solIGM] = IGM_function(model, uptakeRatesTable, geneexpressionTable, condition, normalizemethod)
+%    [modelIGM, solIGM] = IGML2(model, uptakeRatesTable, geneexpressionTable)
+%    [modelIGM, solIGM] = IGML2(model, uptakeRatesTable, geneexpressionTable, condition, normalizemethod)
 %
 % INPUTS:
+%    model:                 COBRA model structure (genome-scale metabolic model).
 %
-%    model:                 input model (COBRA model structure),
-%    uptakeRatesTable:      table of uptake rates where each column is
-%                           condition and each row is reaction fluxes. The
-%                           list of reaction fluxes must agree with
-%                           reaction in metabolic model.
-%    geneexpressionTable:   expression profile table where each columnis condition and each roow is gene 
-%                           corresponding to the list of genes in metabolic
-%                           model.
+%    uptakeRatesTable:      Table of uptake rates where each column represents a condition 
+%                           and each row corresponds to a reaction flux.
+%                           The reaction list must match the reactions in the metabolic model.
+%
+%    geneexpressionTable:   Table of gene expression profiles where each column represents a 
+%                           condition and each row corresponds to a gene in the metabolic model.
 %
 % OPTIONAL INPUTS:
-%    condition:             Row vector indicating the number of conditions 
-%                           corresponding to the conditions in exp 
-%                           (e.g. 1:3 is condition 1 to condition 3 and 
-%                           [1:5,7:8] is condition 1 to 8 except condition
-%                           6 corresponding to column in gene expression
-%                           Table. (default: all conditions)
-%    normalizemethod        Normalized method for transforming gene expression data 
-%                           in each row to relative gene expression data
-%                           which are 
-%                           'max': using maximum value of each row as reference,
-%                           'maxmin': using max-min scaling, and 
-%                           'mean' using mean value as reference or midpoint. 
-%                           (default: 'mean")
-%                       
-%                         
+%    condition:             Row vector specifying the condition indices corresponding to 
+%                           the columns in geneexpressionTable.
+%                           Examples:
+%                               1:3       → conditions 1 to 3
+%                               [1:5,7:8] → conditions 1 to 8 excluding condition 6
+%                           Default: all conditions.
+%
+%    normalizemethod:       Method for normalizing gene expression data for each gene (row) 
+%                           to relative values. Options:
+%                               'max'    → use the maximum value in each row as the reference
+%                               'maxmin' → use min-max scaling
+%                               'mean'   → use the mean value in each row as the reference midpoint
+%                           Default: 'mean'
+%
 % OUTPUTS:
-%    modelIGM:              
-%    solIGM:                Flux distribution table corresponding to reaction flux names.
+%    modelIGM:              IGM optimization model incorporating relative gene expression data.
+%
+%    solIGM:                Flux distribution results for each condition, including:
+%                               solIGM.vL2 → reaction flux distribution for each condition using L2 norm
+%                               solIGM.xL2 → solution values for all variables in each condition using L2 norm
+%                               solIGM.fL2 → optimal objective value for each condition using L2 norm
 %
 % EXAMPLES:
-%    % This could be an example that can be copied from the documentation to MATLAB:
-%    [solIGM] = IGM_function(model, uptakeRatesTable, geneexpressionTable)
-%    % without optional values:
-%    [solIGM] = IGM_function(model, uptakeRatesTable, geneexpressionTable, condition, normalizemethod)
+%    % Run with default settings:
+%    [modelIGM, solIGM] = IGML2(model, uptakeRatesTable, geneexpressionTable)
+%
+%    % Run with specified conditions and normalization method:
+%    [modelIGM, solIGM] = IGML2(model, uptakeRatesTable, geneexpressionTable, [1:3], 'mean')
 %
 % Authors: 
 %    -Thummarat Paklao, 09/08/2025, Department of Mathematics and Computer Science, Faculty of Science, Chulalongkorn University, Thailand. 
