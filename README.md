@@ -1,7 +1,7 @@
 # IGM
 A MILP-Based Approach for Multi-Condition Integration of Gene Expression into Genome-Scale Metabolic Models
 
-This document covers instruction on how to run the integration of gene co-expression network and metabolic model method in MATLAB.
+This document covers instruction on how to run the IGM method in MATLAB.
 
 ## REQUIREMENTS ##
 1. **Matlab** (version R2023a or better)
