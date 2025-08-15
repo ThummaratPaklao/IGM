@@ -3,6 +3,8 @@ A MILP-Based Approach for Multi-Condition Integration of Gene Expression into Ge
 
 This document covers instruction on how to run the IGM method in MATLAB.
 
+**Alternative way**: This model is developed in App Designer. To use it with minimal coding, download IGMAPP.mlappinstall and follow the instructions in Instruction for IGM App.pdf.
+
 ## REQUIREMENTS ##
 1. **Matlab** (version R2023a or better)
 2. **Cobra Toolbox** ([Installation Guide] https://opencobra.github.io/cobratoolbox/stable/installation.html )
