@@ -52,7 +52,7 @@ Step 5. Perform analysis
                                 specifying which conditions to compare
             filtervalue   :     threshold to filter out fluxes within range [-filtervalue, +filtervalue]
 
-![SCATTERPLOTCOMPAREFLUX](Images/Fluxcompare_A.tif)
+    ![SCATTERPLOTCOMPAREFLUX](Images/Fluxcompare_A.tif)
 
     >> relativeFluxTable = plotcomparetwocond(solIGM, conditionIdx, filtervalue, top)
     
@@ -62,6 +62,9 @@ Step 5. Perform analysis
                                    specifying which two conditions to compare
              filtervalue   : threshold to filter out fluxes with values in [-filtervalue, +filtervalue]
              top           : number of top up- and down-regulated fluxes to display
+    
+    ![PLOTCOMPARETWOCOND](Images/glc2.tif)
+    ![Horizontal Bar Plot](Images/glcs2n.tif)
 
 ## Function Description for IGMRUN ##
  **INPUTS:**
