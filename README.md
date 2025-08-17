@@ -39,7 +39,7 @@ Step 4. Read uptake rates data
 
     >> uptakeRatesTable = readtable('uptake_rates_file.csv');
 
-Step 4. Perform analysis
+Step 5. Perform analysis
 
     >> [modelIGM solIGM] = IGMRUN(model, uptakeRatesTable, geneexpressionTable, condition, normalizemethod, method)
 
