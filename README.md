@@ -45,6 +45,7 @@ Step 5. Perform analysis
 
 ## Visualization ##
     >> scatterplotcompareflux(solIGM, conditionIdx, filtervalue)
+    
     SCATTERPLOTCOMPAREFLUX - Generate pairwise scatter plots to compare flux values
     where   solIGM        :    Structure containing the optimization results from IGM model
             conditionIdx  :     vector of indices (relative to fluxTable columns, excluding first column)
@@ -53,6 +54,7 @@ Step 5. Perform analysis
 
 
     >> relativeFluxTable = plotcomparetwocond(solIGM, conditionIdx, filtervalue, top)
+    
     PLOTCOMPARETWOCOND - Compare flux distributions between two conditions and identify top reaction fluxes change
     where    solIGM        :     Structure containing the optimization results from IGM model
              conditionIdx  :     vector of 2 indices (relative to fluxTable columns, excluding first column)
