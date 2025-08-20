@@ -79,9 +79,9 @@ model.ub(model.ub <= 0) = 0;
 minFlux1 = table();
 maxFlux1 = table();
 solbiomass = zeros(length(condition), 1);
-for ch = condition
+for ch = 1:length(condition)
     % integrate uptake rates into metabolic model
-    [rate, TF1] = rmmissing(uptakeRatesTable{:,ch+1}, 1);
+    [rate, TF1] = rmmissing(uptakeRatesTable{:, condition(ch)+1}, 1);
     id_rxn = findRxnIDs(model, uptakeRxnList(~TF1));
     modelFBA = changeRxnBounds(model, model.rxns(id_rxn), rate, 'l');
     
@@ -104,12 +104,12 @@ end
 solIGM.x = table();
 solIGM.v = table(model.rxns);
 solIGM.f = zeros(size(condition, 2), 1);
-solIGM.vL2 = table(model.rxns);;
+solIGM.vL2 = table(model.rxns);
 n = 0;
 for ch = condition
     n = n + 1;
     % integrate uptake rates to metabolic model
-    [rate, TF1] = rmmissing(uptakeRatesTable{:, ch+1}, 1);
+    [rate, TF1] = rmmissing(uptakeRatesTable{:, condition(ch)+1}, 1);
     id_rxn = findRxnIDs(model, uptakeRxnList(~TF1));
     model4 = changeRxnBounds(model, model.rxns(id_rxn), rate, 'l');
 
@@ -121,11 +121,11 @@ for ch = condition
     k = 1;
     p = 1;
     nn = 1;
-    X_i = sparse(2, 2);
-    Y_i = sparse(2, 2);
-    G = sparse(2, size(geneName(~TF), 1));
-    sum_Y = sparse(2, 2);
-    b_sumY = sparse(2, 1);
+    qi = sparse(2, 2);                         % new variables for GPR 
+    yi = sparse(2, 2);                         % new binary variables for GPR
+    G = sparse(2, size(geneName, 1));          % Gene matrix which correspond to variable g
+    sumYi = sparse(2, 2);                      % Coefficint Matrix of variable yi
+    BsumYi = sparse(2, 1);                     % RHS of matrix sumYi 
     gv = {};
     for i = 1 : length(modelIrrev.rxns)
         % extract GPR rule for each reaction
@@ -133,10 +133,10 @@ for ch = condition
         nrule = 0;
         nnrule = 0;
         gg=0;
-        if ~isempty(rulegene)               %check empty GPR rule
+        if ~isempty(rulegene)                %check empty GPR rule
             newrule = split(rulegene, "|");  % split GPR rule between 'OR'
             nrule = size(newrule, 1);        % number of splited rule between 'OR'
-            gene_or=[];
+            gene_or = [];
             for j = 1 : nrule
                 newrule1 = newrule{j};
                 if ~ismember('&', newrule1)                                  % if each splitted rule do not contain 'AND'
@@ -148,41 +148,41 @@ for ch = condition
                     for m = 1 : nnrule
                         newrule_and1 = newrule_and{m};
                         gene_and(m) = string(regexp(newrule_and1, '\d*', 'Match'));
-                        gg = find(string(geneName(~TF, 1))==string(modelIrrev.genes(gene_and(m))));
+                        gg = find(string(geneName) == string(modelIrrev.genes(gene_and(m))));
                         G(k, gg) = -1;
                         G(nnrule + k, gg) = 1;
-                        X_i(k, nn) = 1;
-                        X_i(nnrule + k, nn) = -1;
-                        Y_i(nnrule + k, p) = -M;
-                        sum_Y(nn, p) = 1;
+                        qi(k, nn) = 1;
+                        qi(nnrule + k, nn) = -1;
+                        yi(nnrule + k, p) = -M;
+                        sumYi(nn, p) = 1;
                         p = p + 1;
                         k = k + 1;
                     end
                     gene_or(j) = 10^7 + nn;
                     k = k + nnrule;
-                    b_sumY(nn) = nnrule - 1;
+                    b_sumYi(nn) = nnrule - 1;
                     nn = nn + 1;
                 end
             end 
             if nrule > 1
                 for c = 1 : nrule
-                    X_i(k, nn) = -1;
-                    X_i(nrule + k, nn) = 1;
+                    qi(k, nn) = -1;
+                    qi(nrule + k, nn) = 1;
                     if gene_or(c) > 10^7
-                        X_i(k, gene_or(c) - 10^7) = 1;
-                        X_i(nrule + k, gene_or(c) - 10^7) = -1;
+                        qi(k, gene_or(c) - 10^7) = 1;
+                        qi(nrule + k, gene_or(c) - 10^7) = -1;
                     else
-                        gg = find(string(geneName(~TF, 1)) == string(modelIrrev.genes(gene_or(c))));
+                        gg = find(string(geneName) == string(modelIrrev.genes(gene_or(c))));
                         G(k, gg) = 1;
                         G(nrule + k, gg) = -1;
                     end
-                    Y_i(nrule + k, p) = -M;
-                    sum_Y(nn, p) = 1;
+                    yi(nrule + k, p) = -M;
+                    sumYi(nn, p) = 1;
                     p = p + 1;
                     k = k + 1;
                 end
                 gv{i} = 'x' + string(nn);
-                b_sumY(nn) = nrule - 1;
+                BsumYi(nn) = nrule - 1;
                 nn = nn + 1;
                 k = k + nrule;
             elseif nrule == 1 && nnrule < 1 
@@ -195,16 +195,16 @@ for ch = condition
         end 
     end
 
-    M72 = sparse(G);
-    M73 = sparse(X_i);
-    M76 = sparse(Y_i);
+    M62 = sparse(G);
+    M63 = sparse(qi);
+    M66 = sparse(yi);
 
     M11 = sparse(modelIrrev.S);
     M21 = sparse(eye(length(modelIrrev.rxns)));
     M27 = sparse(eye(length(modelIrrev.rxns)));
     M41 = sparse(2, size(modelIrrev.rxns, 1));
-    M42 = sparse(2, length(geneName(~TF, 1)));
-    M43 = sparse(2, size(X_i, 2));
+    M42 = sparse(2, length(geneName));
+    M43 = sparse(2, size(qi, 2));
     M45 = sparse(2, 2*length(modelIrrev.rxns));
     b4 = sparse(2, 1);
     gg = 0;
@@ -215,7 +215,7 @@ for ch = condition
             a = gv{i}{1};   
             if max(table2array(maxFlux1(i, :))) - min(table2array(minFlux1(i, :))) > 0.0001 && a(1) == 'g'
                 M41(k, i) = 1/(max(table2array(maxFlux1(i, :))) - min(table2array(minFlux1(i, :))));
-                gg = find(string(geneName(~TF, 1)) == string(modelIrrev.genes(str2num(replace(gv{i}{1}, 'g', '')))));
+                gg = find(string(geneName) == string(modelIrrev.genes(str2num(replace(gv{i}{1}, 'g', '')))));
                 M42(k, gg) = -1;
                 M43(k, :) = 0;
                 M45(k, i) = 1;
@@ -248,15 +248,15 @@ for ch = condition
 
     if strcmp(normalizemethod, 'max')
         k = 1;
-        b6 = sparse(2, 1);
-        M62 = sparse(2, length(geneName(~TF, 1)));
-        M64 = sparse(2, 2);
+        b5 = sparse(2, 1);
+        M52 = sparse(2, length(geneName));
+        M54 = sparse(2, 2);
         for i = 1 : length(geneName(:, 1)) - 1
             if max(exp(i, :)) - min(exp(i, :)) > 0.1 
-                M62(k, k) = 1;
-                M64(k, k) = 1;
-                M64(k, length(geneName(:, 1)) - 1 + k) = -1;
-                b6(k, 1) = (exp(i, ch))/ (max(exp(i, :)));
+                M52(k, k) = 1;
+                M54(k, k) = 1;
+                M54(k, length(geneName(:, 1)) - 1 + k) = -1;
+                b5(k, 1) = (exp(i, ch))/ (max(exp(i, :)));
                 k = k + 1;
             end
         end
@@ -264,15 +264,15 @@ for ch = condition
 
     if strcmp(normalizemethod, 'maxmin')
         k = 1;
-        b6 = sparse(2, 1);
-        M62 = sparse(2, length(geneName(~TF, 1)));
-        M64 = sparse(2, 2);
+        b5 = sparse(2, 1);
+        M2 = sparse(2, length(geneName));
+        M54 = sparse(2, 2);
         for i = 1:length(geneName(:, 1)) - 1
             if max(exp(i, :)) - min(exp(i, :)) > 0.1 
-                M62(k, k) = 1;
-                M64(k, k) = 1;
-                M64(k, length(geneName(:, 1)) - 1 + k) = -1;
-                b6(k, 1) = (exp(i, ch) - min(exp(i, :)))/ (max(exp(i, :)) - min(exp(i, :)));
+                M52(k, k) = 1;
+                M54(k, k) = 1;
+                M54(k, length(geneName(:, 1)) - 1 + k) = -1;
+                b5(k, 1) = (exp(i, ch) - min(exp(i, :)))/ (max(exp(i, :)) - min(exp(i, :)));
                 k = k + 1;
             end
         end
@@ -281,19 +281,19 @@ for ch = condition
 
     if strcmp(normalizemethod, 'mean')
         k = 1;
-        b6 = sparse(2, 1);
-        M62 = sparse(2, length(geneName(~TF, 1)));
-        M64 = sparse(2, 2);
+        b5 = sparse(2, 1);
+        M52 = sparse(2, length(geneName));
+        M54 = sparse(2, 2);
         for i = 1 : length(geneName(:, 1)) - 1
             if max(exp(i, :)) - min(exp(i, :)) > 0.1 
                 meang = mean(exp(i, :));
-                M62(k, k) = 1;
-                M64(k, k) = 1;
-                M64(k, length(geneName(:, 1)) - 1 + k) = -1;
+                M52(k, k) = 1;
+                M54(k, k) = 1;
+                M54(k, length(geneName(:, 1)) - 1 + k) = -1;
                 if exp(i, ch) >= meang
-                    b6(k, 1) = (((exp(i, ch) - meang)/ (max(exp(i, :)) - meang)) + 1)/ 2;
+                    b5(k, 1) = (((exp(i, ch) - meang)/ (max(exp(i, :)) - meang)) + 1)/ 2;
                 else 
-                    b6(k, 1) = ((meang - exp(i, ch))/ (meang - min(exp(i, :))))/ 2;
+                    b5(k, 1) = ((meang - exp(i, ch))/ (meang - min(exp(i, :))))/ 2;
                 end    
                 k = k + 1;
             end
@@ -301,18 +301,18 @@ for ch = condition
     end
 
     % Prepare zero Matrix for Optimization
-    M12 = sparse(size(M11, 1), length(geneName(~TF, 1)));
-    M13 = sparse(size(M11, 1), size(X_i, 2));
-    M14 = sparse(size(M11, 1), size(M64, 2));
+    M12 = sparse(size(M11, 1), length(geneName));
+    M13 = sparse(size(M11, 1), size(qi, 2));
+    M14 = sparse(size(M11, 1), size(M54, 2));
     M15 = sparse(size(M11, 1), size(M45, 2));
-    M16 = sparse(size(M11, 1), size(Y_i, 2));
+    M16 = sparse(size(M11, 1), size(yi, 2));
     M17 = sparse(size(M11, 1), length(modelIrrev.rxns));
 
-    M22 = sparse(size(M21, 1), length(geneName(~TF, 1)));
-    M23 = sparse(size(M21, 1), size(X_i, 2));
-    M24 = sparse(size(M21, 1), size(M64, 2));
+    M22 = sparse(size(M21, 1), length(geneName));
+    M23 = sparse(size(M21, 1), size(qi, 2));
+    M24 = sparse(size(M21, 1), size(M54, 2));
     M25 = sparse(size(M21, 1), size(M45, 2));
-    M26 = sparse(size(M21, 1), size(Y_i, 2));
+    M26 = sparse(size(M21, 1), size(yi, 2));
 
     M31 = sparse(size(M37, 1), size(M11, 2));
     M32 = sparse(size(M37, 1), size(M12, 2));
@@ -325,38 +325,38 @@ for ch = condition
     M46 = sparse(size(M41, 1), size(M16, 2));
     M47 = sparse(size(M41, 1), size(M17, 2));
 
-    M61 = sparse(size(M62, 1), size(M11, 2));
-    M63 = sparse(size(M62, 1), size(M13, 2));
+    M51 = sparse(size(M52, 1), size(M11, 2));
+    M53 = sparse(size(M52, 1), size(M13, 2));
+    M55 = sparse(size(M52, 1), size(M15, 2));
+    M56 = sparse(size(M52, 1), size(M16, 2));
+    M57 = sparse(size(M52, 1),size(M17, 2));
+
+    M61 = sparse(size(G, 1), size(M11, 2));
+    M64 = sparse(size(M62, 1), size(M14, 2));
     M65 = sparse(size(M62, 1), size(M15, 2));
-    M66 = sparse(size(M62, 1), size(M16, 2));
-    M67 = sparse(size(M62, 1),size(M17, 2));
+    M67 = sparse(size(M62, 1), size(M17, 2));
 
-    M71 = sparse(size(G, 1), size(M11, 2));
-    M74 = sparse(size(M72, 1), size(M14, 2));
-    M75 = sparse(size(M72, 1), size(M15, 2));
-    M77 = sparse(size(M72, 1), size(M17, 2));
-
-    M86 = sparse(sum_Y);
-    M81 = sparse(size(M86, 1), size(M11, 2));
-    M82 = sparse(size(M86, 1), size(M12, 2));
-    M83 = sparse(size(M86, 1), size(M13, 2));
-    M84 = sparse(size(M86, 1), size(M14, 2));
-    M85 = sparse(size(M86, 1), size(M15, 2));
-    M87 = sparse(size(M86, 1), size(M17, 2));
+    M76 = sparse(sumYi);
+    M71 = sparse(size(M76, 1), size(M11, 2));
+    M72 = sparse(size(M76, 1), size(M12, 2));
+    M73 = sparse(size(M76, 1), size(M13, 2));
+    M74 = sparse(size(M76, 1), size(M14, 2));
+    M75 = sparse(size(M76, 1), size(M15, 2));
+    M77 = sparse(size(M76, 1), size(M17, 2));
 
     b1 = sparse(zeros(size(M11, 1), 1));
     b2 = sparse(zeros(size(M21, 1), 1));
     b3 = sparse(ones(size(M31, 1), 1));
     b4 = sparse(b4);
-    b6 = sparse(b6);
-    b7 = sparse(zeros(size(M71, 1), 1));
-    b8 = sparse(b_sumY);
+    b5 = sparse(b5);
+    b6 = sparse(zeros(size(M61, 1), 1));
+    b7 = sparse(BsumYi);
     
     % Matrix of Optimization Problem
-    Aeq = sparse([M11, M12, M13, M14, M15, M16, M17; M31, M32, M33, M34, M35, M36, M37; M41, M42, M43, M44, M45, M46, M47; M61, M62, M63, M64, M65, M66, M67; M81, M82, M83, M84, M85, M86, M87]);
-    beq = sparse([b1; b3; b4; b6; b8]);
-    A = sparse([M21, M22, M23, M24, M25, M26, M27; M71, M72, M73, M74, M75, M76, M77]);
-    b = sparse([b2; b7]);
+    Aeq = sparse([M11, M12, M13, M14, M15, M16, M17; M31, M32, M33, M34, M35, M36, M37; M41, M42, M43, M44, M45, M46, M47; M51, M52, M53, M54, M55, M56, M57; M71, M72, M73, M74, M75, M76, M77]);
+    beq = sparse([b1; b3; b4; b5; b7]);
+    A = sparse([M21, M22, M23, M24, M25, M26, M27; M61, M62, M63, M64, M65, M66, M67]);
+    b = sparse([b2; b6]);
     f = sparse([-(((size(M14, 2) + size(M15, 2)))/ (solbiomass(ch)))*modelIrrev.c; zeros(size(M12, 2), 1); zeros(size(M13, 2), 1); ones(size(M14, 2), 1); ones(size(M15, 2), 1); zeros(size(M16, 2), 1); zeros(size(M17, 2), 1)]);
     lb = [modelIrrev.lb; zeros(size(M12, 2) + size(M13, 2) + size(M14, 2) + size(M15, 2) + size(M16, 2) + size(M17, 2), 1)];
     ub = [modelIrrev.ub; ones(size(M12, 2), 1); ones(size(M13, 2), 1); inf(size(M14, 2), 1); inf(size(M15, 2), 1); ones(size(M16, 2), 1); ones(size(M17, 2), 1)];
@@ -395,7 +395,7 @@ for ch = condition
     % Optimization with L1 norm
     f1 = sparse(zeros(size(f)));
     A=sparse([M21, M22, M23, M24, M25, M26, M27; M71, M72, M73, M74, M75, M76, M77; f']);
-    b=sparse([b2;b7; solIGM.f(ch, 1) + 0.0005*abs(solIGM.f(ch, 1))]);
+    b=sparse([b2;b7; solIGM.f(ch, 1) + 0.001*abs(solIGM.f(ch, 1))]);
     modelL2 = struct();
     modelL2.A = sparse([Aeq; A]);
     modelL2.obj = full(f1);

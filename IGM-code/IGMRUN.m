@@ -91,6 +91,6 @@ switch method
 
     otherwise
             error('Unknown method: %s', method);
-    end
-
+end
+    solIGM.status = 'complete';
 end
