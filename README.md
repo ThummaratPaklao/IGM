@@ -44,9 +44,10 @@ Step 5. Perform analysis
     >> [modelIGM solIGM] = IGMRUN(model, uptakeRatesTable, geneexpressionTable, condition, normalizemethod, method)
 
 ## Visualization ##
+
+SCATTERPLOTCOMPAREFLUX - Generate pairwise scatter plots to compare flux values
     >> scatterplotcompareflux(solIGM, conditionIdx, filtervalue)
     
-    SCATTERPLOTCOMPAREFLUX - Generate pairwise scatter plots to compare flux values
     where   solIGM        :    Structure containing the optimization results from IGM model
             conditionIdx  :     vector of indices (relative to fluxTable columns, excluding first column)
                                 specifying which conditions to compare
@@ -54,17 +55,17 @@ Step 5. Perform analysis
 
 ![SCATTERPLOTCOMPAREFLUX](Images/Fluxcompare_A.png)
 
+PLOTCOMPARETWOCOND - Compare flux distributions between two conditions and identify top reaction fluxes change
     >> relativeFluxTable = plotcomparetwocond(solIGM, conditionIdx, filtervalue, top)
     
-    PLOTCOMPARETWOCOND - Compare flux distributions between two conditions and identify top reaction fluxes change
     where    solIGM        :     Structure containing the optimization results from IGM model
              conditionIdx  :     vector of 2 indices (relative to fluxTable columns, excluding first column)
                                    specifying which two conditions to compare
              filtervalue   : threshold to filter out fluxes with values in [-filtervalue, +filtervalue]
              top           : number of top up- and down-regulated fluxes to display
     
-    ![PLOTCOMPARETWOCOND](Images/glc2.tif)
-    ![Horizontal Bar Plot](Images/glcs2n.tif)
+![PLOTCOMPARETWOCOND](Images/glc2.png)
+![Horizontal Bar Plot](Images/glcs2n.png)
 
 ## Function Description for IGMRUN ##
  **INPUTS:**
@@ -115,14 +116,14 @@ Step 5. Perform analysis
 
  **EXAMPLES:**
  
-    Run with default settings (IGM without regularization):
-    [modelIGM, solIGM] = IGMRUN(model, uptakeRatesTable, geneexpressionTable)
+Run with default settings (IGM without regularization):
+    >> [modelIGM, solIGM] = IGMRUN(model, uptakeRatesTable, geneexpressionTable)
 
-    Run with L1-norm regularization:
-    [modelIGM, solIGM] = IGMRUN(model, uptakeRatesTable, geneexpressionTable, 1:3, 'maxmin', 'L1')
+Run with L1-norm regularization:
+    >> [modelIGM, solIGM] = IGMRUN(model, uptakeRatesTable, geneexpressionTable, 1:3, 'maxmin', 'L1')
 
-    Run with L2-norm regularization:
-    [modelIGM, solIGM] = IGMRUN(model, uptakeRatesTable, geneexpressionTable, [1:5,7:8], 'mean', 'L2')
+Run with L2-norm regularization:
+    >>[modelIGM, solIGM] = IGMRUN(model, uptakeRatesTable, geneexpressionTable, [1:5,7:8], 'mean', 'L2')
 
 ## Citation ##
 In progress.
