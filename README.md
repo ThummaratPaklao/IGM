@@ -52,7 +52,7 @@ Step 5. Perform analysis
                                 specifying which conditions to compare
             filtervalue   :     threshold to filter out fluxes within range [-filtervalue, +filtervalue]
 
-    ![SCATTERPLOTCOMPAREFLUX](Images/Fluxcompare_A.tif)
+    ![SCATTERPLOTCOMPAREFLUX](Images/Fluxcompare_A.png)
 
     >> relativeFluxTable = plotcomparetwocond(solIGM, conditionIdx, filtervalue, top)
     
