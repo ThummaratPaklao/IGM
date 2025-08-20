@@ -89,12 +89,14 @@ plotcomparetwocond - Compare flux distributions between two conditions and ident
                                1:3       → conditions 1 to 3
                                [1:5,7:8] → conditions 1 to 8 excluding condition 6
                            Default: all conditions.
+                           
     normalizemethod:       Method for normalizing gene expression data for each gene (row) 
                            to relative values. Options:
                                'max'    → use the maximum value in each row as the reference
                                'maxmin' → use min-max scaling
                                'mean'   → use the mean value in each row as the reference midpoint
                            Default: 'mean'
+                           
     method:                Method for solving the optimization problem:
                                'IGM' → IGM without additional regularization
                                'L1'  → IGM with L1 norm regularization
@@ -103,6 +105,7 @@ plotcomparetwocond - Compare flux distributions between two conditions and ident
  **OUTPUTS:**
  
     modelIGM:              IGM optimization model incorporating relative gene expression data.
+    
     solIGM:                Structure containing the optimization results:
                                solIGM.v   → reaction flux distribution for each condition
                                solIGM.x   → solution values for all variables in each condition
@@ -119,12 +122,15 @@ plotcomparetwocond - Compare flux distributions between two conditions and ident
  **EXAMPLES:**
  
 Run with default settings (IGM without regularization):
+
     >> [modelIGM, solIGM] = IGMRUN(model, uptakeRatesTable, geneexpressionTable)
 
 Run with L1-norm regularization:
+
     >> [modelIGM, solIGM] = IGMRUN(model, uptakeRatesTable, geneexpressionTable, 1:3, 'maxmin', 'L1')
 
 Run with L2-norm regularization:
+
     >>[modelIGM, solIGM] = IGMRUN(model, uptakeRatesTable, geneexpressionTable, [1:5,7:8], 'mean', 'L2')
 
 ## Citation ##
