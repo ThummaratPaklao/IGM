@@ -1,5 +1,5 @@
 function [modelIGM, solIGM] = IGM_function(model, uptakeRatesTable, geneexpressionTable, condition, normalizemethod)
-% IGM_FUNCTION - Multi-Condition Integration of Gene Expression into Genome-Scale Metabolic Models
+% IGM_FUNCTION - Integrated Gene-expression Modeling for Multi-Condition Flux-Preserving Genome-Scale Metabolic Models
 %
 % USAGE:
 %    [modelIGM, solIGM] = IGM_function(model, uptakeRatesTable, geneexpressionTable)
@@ -394,6 +394,7 @@ end
 % writetable(solution,filename1)
 % filename2 = 'IGM1/igm_allcond_carbecoli_NN.csv';
 % writetable(all_result,filename2)
+
 
 
 
