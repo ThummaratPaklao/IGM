@@ -1,5 +1,5 @@
-# IGM
-A MILP-Based Approach for Multi-Condition Integration of Gene Expression into Genome-Scale Metabolic Models
+# IGM: Integrated Gene-expression Modeling
+IGM: Integrated Gene-expression Modeling for Multi-Condition Flux-Preserving Genome-Scale Metabolic Models
 
 This document covers instruction on how to run the IGM method in MATLAB.
 
