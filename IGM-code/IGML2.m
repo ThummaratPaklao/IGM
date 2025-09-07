@@ -1,5 +1,5 @@
 function [modelIGM solIGM] = IGML2(model, uptakeRatesTable, geneexpressionTable, condition, normalizemethod)
-% IGML2 - Multi-Condition Integration of Gene Expression into Genome-Scale Metabolic Models 
+% IGML2 - Integrated Gene-expression Modeling for Multi-Condition Flux-Preserving Genome-Scale Metabolic Models 
 %         with L2-Norm Regularization
 %
 % USAGE:
@@ -428,4 +428,5 @@ for ch = condition
 end
 end
 %filename = 'IGM1/g3/igml2_4condyeast.csv';
+
 %writetable(solution1,filename)
