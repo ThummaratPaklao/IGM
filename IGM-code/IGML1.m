@@ -1,5 +1,5 @@
 function [modelIGM, solIGM] = IGML1(model, uptakeRatesTable, geneexpressionTable, condition, normalizemethod)
-% IGML1 - Multi-Condition Integration of Gene Expression into Genome-Scale Metabolic Models 
+% IGML1 - Integrated Gene-expression Modeling for Multi-Condition Flux-Preserving Genome-Scale Metabolic Models 
 %         with L1-Norm Regularization
 %
 % USAGE:
@@ -425,3 +425,4 @@ for ch = condition
     solIGM.fL1(n, 1) = result.objval;
 end
 end
+
