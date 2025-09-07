@@ -1,5 +1,5 @@
 function [modelIGM solIGM] = IGMRUN(model, uptakeRatesTable, geneexpressionTable, condition, normalizemethod, method)
-% IGMRUN - Multi-Condition Integration of Gene Expression into Genome-Scale Metabolic Models 
+% IGMRUN - Integrated Gene-expression Modeling for Multi-Condition Flux-Preserving Genome-Scale Metabolic Models 
 %          with Optional L1 or L2 Norm Regularization
 %
 % USAGE:
@@ -93,4 +93,5 @@ switch method
             error('Unknown method: %s', method);
 end
     solIGM.status = 'complete';
+
 end
